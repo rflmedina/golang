@@ -1,6 +1,9 @@
-package address
+package address_test
 
-import "testing"
+import (
+	"test/address"
+	"testing"
+)
 
 type cenarioDeTeste struct {
 	addressTypeTeste string
@@ -18,10 +21,10 @@ func TestAddressTyper(t *testing.T) {
 	}
 
 	for _, cenario := range cenariosDeTeste {
-		addressTypeReceived := addressType(cenario.addressTypeTeste)
+		addressTypeReceived := address.AddressType(cenario.addressTypeTeste)
 
 		if addressTypeReceived != cenario.expectedTest {
-			t.Errorf("O tipo recebido %s é diferente do esperado %s", addressType, cenario.expectedTest)
+			t.Errorf("O tipo recebido %s é diferente do esperado %s", addressTypeReceived, cenario.expectedTest)
 		}
 	}
 
