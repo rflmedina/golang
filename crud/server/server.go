@@ -12,8 +12,8 @@ import (
 
 type user struct {
 	ID    uint32 `json:"id"`
-	name  string `json:"name"`
-	email string `json:"email"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 // CreateUser is a handler function for the /users endpoint
@@ -48,13 +48,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	defer statement.Close()
 
-	inserction, err := statement.Exec(user.name, user.email)
+	inserction, err := statement.Exec(user.Name, user.Email)
 	if err != nil {
 		w.Write([]byte("Error inserting new user"))
 		return
 	}
 
-	id, err := inserction.LastInsertId()
+	ID, err := inserction.LastInsertId()
 	if err != nil {
 		w.Write([]byte("Error getting last insert id"))
 		return
@@ -62,7 +62,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Statis code 201 means that a new resource was created
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("User successfully created! ID: " + string(id)))
+	w.Write([]byte("User successfully created! ID: " + string(ID)))
 }
 
 // SearchUsers is a handler function for the /users endpoint
@@ -89,7 +89,7 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var user user
 
-		if err = rows.Scan(&user.ID, &user.name, &user.email); err != nil {
+		if err = rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
 			w.Write([]byte("Error scanning users"))
 			return
 		}
@@ -133,7 +133,7 @@ func SearchUser(w http.ResponseWriter, r *http.Request) {
 
 	var user user
 	if row.Next() {
-		if err = row.Scan(&user.ID, &user.name, &user.email); err != nil {
+		if err = row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
 			w.Write([]byte("Error scanning user"))
 			return
 		}
@@ -185,7 +185,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	defer statement.Close()
 
-	_, err = statement.Exec(user.name, user.email, id)
+	_, err = statement.Exec(user.Name, user.Email, id)
 	if err != nil {
 		w.Write([]byte("Error updating user"))
 		return
