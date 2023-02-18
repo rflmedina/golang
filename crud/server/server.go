@@ -194,3 +194,39 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User successfully updated!"))
 }
+
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	id, err := strconv.ParseUint(params["id"], 10, 32)
+	if err != nil {
+		w.Write([]byte("Error converting id to uint"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		w.Write([]byte("Error connecting to database"))
+		return
+	}
+
+	defer db.Close()
+
+	// Prepare the statement to delete a user by id
+	statement, err := db.Prepare("DELETE FROM users WHERE id = ?")
+	if err != nil {
+		w.Write([]byte("Error preparing statement"))
+		return
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(id)
+	if err != nil {
+		w.Write([]byte("Error deleting user"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User successfully deleted!"))
+}
