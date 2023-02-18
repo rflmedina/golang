@@ -61,3 +61,47 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("User successfully created! ID: " + string(id)))
 }
+
+// SearchUsers is a handler function for the /users endpoint
+func SearchUsers(w http.ResponseWriter, r *http.Request) {
+	db, err := database.Connect()
+	if err != nil {
+		w.Write([]byte("Error connecting to database"))
+		return
+	}
+
+	defer db.Close()
+
+	// Prepare the statement to select all users
+	rows, err := db.Query("SELECT * FROM users")
+	if err != nil {
+		w.Write([]byte("Error at getting users"))
+		return
+	}
+
+	defer rows.Close()
+
+	var users []user
+
+	for rows.Next() {
+		var user user
+
+		if err = rows.Scan(&user.ID, &user.name, &user.email); err != nil {
+			w.Write([]byte("Error scanning users"))
+			return
+		}
+
+		users = append(users, user)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(users); err != nil {
+		w.Write([]byte("Error encoding users"))
+		return
+	}
+}
+
+// SearchUser is a handler function for the /users/{id} endpoint
+func SearchUser(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Search user"))
+}
