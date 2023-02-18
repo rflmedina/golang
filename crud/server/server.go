@@ -146,3 +146,51 @@ func SearchUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	id, err := strconv.ParseUint(params["id"], 10, 32)
+	if err != nil {
+		w.Write([]byte("Error converting id to uint"))
+		return
+	}
+
+	bodyRequest, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.Write([]byte("Error reading request body"))
+		return
+	}
+
+	var user user // user is a struct
+	if err = json.Unmarshal(bodyRequest, &user); err != nil {
+		w.Write([]byte("Error unmarshalling request body"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		w.Write([]byte("Error connecting to database"))
+		return
+	}
+
+	defer db.Close()
+
+	// Prepare the statement to update a user by id
+	statement, err := db.Prepare("UPDATE users SET name = ?, email = ? WHERE id = ?")
+	if err != nil {
+		w.Write([]byte("Error preparing statement"))
+		return
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(user.name, user.email, id)
+	if err != nil {
+		w.Write([]byte("Error updating user"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User successfully updated!"))
+}

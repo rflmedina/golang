@@ -13,6 +13,7 @@ func main() {
 	router.HandleFunc("/users", server.CreateUser).Methods(http.MethodPost)
 	router.HandleFunc("/users", server.SearchUsers).Methods(http.MethodGet)
 	router.HandleFunc("/users/{id}", server.SearchUser).Methods(http.MethodGet)
+	router.HandleFunc("/users/{id}", server.UpdateUser).Methods(http.MethodPut)
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
