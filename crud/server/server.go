@@ -1,6 +1,7 @@
 package server
 
 import (
+	"crud/database"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -13,7 +14,7 @@ type user struct {
 }
 
 // CreateUser is a handler function for the /users endpoint
-func createUser(w http.ResponseWriter, r *http.Request) {
+func CreateUser(w http.ResponseWriter, r *http.Request) {
 	bodyRequest, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.Write([]byte("Error reading request body"))

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crud/server"
 	"log"
 	"net/http"
 
@@ -9,7 +10,7 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-	router.handleFunc("/users", func(w http.ResponseWriter, r *http.Request)).Methods(http.MethodPost)
+	router.HandleFunc("/users", server.CreateUser).Methods(http.MethodPost)
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
