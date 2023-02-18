@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type user struct {
@@ -103,5 +106,43 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 
 // SearchUser is a handler function for the /users/{id} endpoint
 func SearchUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Search user"))
+	params := mux.Vars(r)
+
+	id, err := strconv.ParseUint(params["id"], 10, 32)
+	if err != nil {
+		w.Write([]byte("Error converting id to uint"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		w.Write([]byte("Error connecting to database"))
+		return
+	}
+
+	defer db.Close()
+
+	// Prepare the statement to select a user by id
+	row, err := db.Query("SELECT * FROM users WHERE id = ?", id)
+	if err != nil {
+		w.Write([]byte("Error at getting user"))
+		return
+	}
+
+	defer row.Close()
+
+	var user user
+	if row.Next() {
+		if err = row.Scan(&user.ID, &user.name, &user.email); err != nil {
+			w.Write([]byte("Error scanning user"))
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(user); err != nil {
+		w.Write([]byte("Error encoding user"))
+		return
+	}
+
 }
